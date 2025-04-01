@@ -24,7 +24,11 @@ def main():
 
     # Check login success
     if response.status_code == 200:
+        # Retrieve inner JSON data
         json_data = response.json()['_global_result']
+
+        # Print login status string
+        print(json_data['status_str'])
 
         # Get session token from the _global_result
         session_token = json_data['UIDARUBA']

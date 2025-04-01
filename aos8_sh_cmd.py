@@ -1,4 +1,5 @@
 import aos8_init_session
+import aos8_logout_session
 import csv
 import json
 import requests
@@ -11,9 +12,20 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Global Variables
 auth_file   = "./session.json"
-creds       = json.load(open(auth_file))
+creds       = {}
+
+def read_auth(file):
+    return json.load(open(file))
 
 def sh_cmd(command):
+    # Load auth_file
+    creds = read_auth(auth_file)
+
+    # Check auth_file for token value
+    if creds['token'] == "(null)":
+        aos8_init_session.main()
+        creds = read_auth(auth_file)
+
     # Request Variables
     headers     = {
         'Content-Type'  : 'application/json',
@@ -37,10 +49,6 @@ def main():
     # Variables
     output_file = "./ap_database.csv"
 
-    # Check if session token is created
-    if creds['token'] == "(null)":
-        aos8_init_session.main()
-
     # Get access point database
     apdb = sh_cmd('ap database long')
 
@@ -62,6 +70,9 @@ def main():
 
             # Append the data_row to the .csv file
             write.writerow(data_row)
+    
+    # Logout
+    aos8_logout_session.main()
 
 if __name__ == "__main__":
     main()
